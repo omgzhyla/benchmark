@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>JavaScript Benchmark</title>
+  </head>
+  <body>
+    <h1>JavaScript Benchmark</h1>
+    <p>Open the browser console to see the benchmark results.</p>
+
+    <script>
+      // Benchmarking function
+      function benchmark(func, iterations) {
+        const start = performance.now();
+        for (let i = 0; i < iterations; i++) {
+          func();
+        }
+        const end = performance.now();
+        return end - start;
+      }
+
+      function generatePrimesArray(limit) {
+        const primes = new Array(limit + 1).fill(true);
+        primes[0] = false;
+        primes[1] = false;
+
+        for (let i = 2; i <= Math.sqrt(limit); i++) {
+          if (primes[i]) {
+            for (let j = i * i; j <= limit; j += i) {
+              primes[j] = false;
+            }
+          }
+        }
+
+        const primeNumbers = new Array();
+        for (let i = 2; i <= limit; i++) {
+          if (primes[i]) {
+            primeNumbers.push(i);
+          }
+        }
+
+        return primeNumbers;
+      }
+
+      const primes = generatePrimesArray(1_000_000);
+
+      //   function sparceArrayFn() {
+      const arrayish = new Array();
+      for (let i = 0; i < primes.length; i++) {
+        arrayish[primes[i]] = true;
+      }
+
+      const settish = new Set();
+      for (let i = 0; i < primes.length; i++) {
+        settish.add(primes[i]);
+      }
+
+      console.log(
+        "Arrayish",
+        benchmark(() => {
+          const randomNumber = Math.floor(Math.random() * 1_000_000);
+          const isPrime = arrayish[randomNumber] ?? false;
+        }, 10000)
+      );
+
+      console.log(
+        "Arrayish2",
+        benchmark(() => {
+          const randomNumber = Math.floor(Math.random() * 1_000_000);
+          const isPrime = primes.includes(randomNumber);
+        }, 10000)
+      );
+
+      console.log(
+        "Settish: ",
+        benchmark(() => {
+          const randomNumber = Math.floor(Math.random() * 1_000_000);
+          const isPrime = settish.has(randomNumber);
+        }, 10000)
+      );
+    </script>
+  </body>
+</html>
